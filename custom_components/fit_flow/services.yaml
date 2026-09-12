@@ -1,0 +1,19 @@
+log_activity:
+  name: Log activity
+  description: Register a configured external physical activity.
+  fields:
+    activity:
+      required: true
+      selector:
+        text:
+    datetime:
+      required: false
+      selector:
+        datetime:
+    duration_minutes:
+      required: false
+      selector:
+        number:
+          min: 1
+          mode: box
+
