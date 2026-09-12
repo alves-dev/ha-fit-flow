@@ -4,6 +4,7 @@ log_activity:
   fields:
     activity:
       required: true
+      description: Activity ID or configured activity name, for example Corrida.
       selector:
         text:
     datetime:
@@ -16,4 +17,3 @@ log_activity:
         number:
           min: 1
           mode: box
-
