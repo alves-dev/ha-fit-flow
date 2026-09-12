@@ -29,6 +29,7 @@ class FitFlowPanel extends HTMLElement {
       .row:last-child { border:0; } .actions { display:flex; gap:8px; flex-wrap:wrap; } label { display:block; margin:10px 0 5px; color:var(--secondary-text-color); }
       input,select { width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--divider-color); border-radius:8px; background:var(--input-fill-color,var(--secondary-background-color)); color:var(--primary-text-color); font:inherit; } select { cursor:pointer; }
       form { max-width:600px; } .section-title { margin-top:28px; } .check { display:flex; align-items:center; gap:8px; padding:8px 0; } .check input { width:auto; } .blocked { color:var(--error-color); } .hint { font-size:.9em; } .req { display:grid; grid-template-columns:1fr 90px auto; gap:8px; align-items:end; margin:8px 0; }
+      .date-heading { margin:28px 0 10px; font-size:1.05em; color:var(--primary-text-color); } .history-item { display:block; padding:16px 0; border-bottom:1px solid var(--divider-color); } .history-item:last-child { border:0; } .history-top { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; } .history-name { font-size:1.05em; font-weight:600; } .history-meta { margin-top:5px; color:var(--secondary-text-color); font-size:.9em; } .badge { display:inline-block; padding:4px 9px; border-radius:12px; background:var(--secondary-background-color); color:var(--secondary-text-color); font-size:.78em; white-space:nowrap; } .history-details { margin-top:10px; color:var(--secondary-text-color); } .history-details summary { cursor:pointer; color:var(--primary-color); }
       @media(max-width:600px){ :host{padding:12px;} .top{align-items:flex-start; flex-direction:column;} }
     </style><div class="app"><div class="top"><div><h1>FitFlow</h1><p>Treinos flexíveis, escolhidos pelo seu histórico.</p></div><div class="tabs"><button data-view="today">Hoje</button><button data-view="history">Histórico</button><button data-view="config">Configuração</button></div></div><main id="content"></main></div>`;
     this.addEventListener("click", (event) => this.handleClick(event)); this.addEventListener("submit", (event) => this.handleSubmit(event));
@@ -47,7 +48,24 @@ class FitFlowPanel extends HTMLElement {
     return `<div class="card hero"><h2>${workout ? esc(workout.name) : "Nenhum treino disponível"}</h2><p>${workout ? "Este é o próximo treino recomendado com base no seu histórico." : (rec.next_available_at ? `Próxima disponibilidade: ${esc(rec.next_available_at)}` : "Configure treinos e regras para começar.")}</p>${workout ? `<button data-start="${esc(workout.id)}">Começar treino</button>` : ""}</div><h2 class="section-title">Treinos configurados</h2><div class="grid">${data.workouts.map((item) => `<div class="card"><h3>${esc(item.name)}</h3><p>${(item.requirements || []).reduce((sum, req) => sum + Number(req.exercise_count || 0), 0)} exercícios planejados</p><button class="secondary" data-start="${esc(item.id)}">Escolher</button>${rec.blocked_workouts?.[item.id] ? `<p class="blocked">Bloqueado até ${esc(rec.blocked_workouts[item.id].until)}</p>` : ""}</div>`).join("") || '<div class="card"><p>Nenhum treino cadastrado.</p></div>'}</div>`;
   }
 
-  historyView() { return `<div class="card"><h2>Histórico</h2>${[...this._data.history].reverse().map((item) => `<div class="row"><div><strong>${esc(item.workout_name || item.activity_name)}</strong><div class="muted">${esc(item.finished_at || item.performed_at)} · ${item.kind === "workout" ? `${item.exercises?.length || 0} exercícios` : `${item.duration_minutes || "—"} min`}</div></div><span>${item.kind === "workout" ? "Treino" : "Atividade"}</span></div>`).join("") || "<p>Nenhuma atividade registrada ainda.</p>"}</div>`; }
+  historyView() {
+    const sorted = [...this._data.history].sort((left, right) => this.historyTimestamp(right) - this.historyTimestamp(left));
+    const groups = sorted.reduce((result, item) => { const day = this.formatDate(item.finished_at || item.performed_at, false); (result[day] ||= []).push(item); return result; }, {});
+    const content = Object.entries(groups).map(([day, items]) => `<section><h3 class="date-heading">${esc(day)}</h3>${items.map((item) => this.historyItem(item)).join("")}</section>`).join("");
+    return `<div class="card"><h2>Histórico</h2><p class="hint">Atividades mais recentes aparecem primeiro.</p>${content || "<p>Nenhuma atividade registrada ainda.</p>"}</div>`;
+  }
+
+  historyItem(item) {
+    const isWorkout = item.kind === "workout";
+    const name = item.workout_name || item.activity_name || "Atividade";
+    const duration = isWorkout ? this.workoutDuration(item) : (item.duration_minutes ? `${item.duration_minutes} min` : "Duração não informada");
+    const exercises = isWorkout && item.exercises?.length ? `<details class="history-details"><summary>Ver exercícios (${item.exercises.length})</summary><ul>${item.exercises.map((exercise) => `<li>${esc(exercise.exercise_name || exercise.exercise_id)}</li>`).join("")}</ul></details>` : "";
+    return `<article class="history-item"><div class="history-top"><div><div class="history-name">${esc(name)}</div><div class="history-meta">${esc(this.formatDate(item.finished_at || item.performed_at, true))} · ${esc(duration)}</div></div><span class="badge">${isWorkout ? "Treino" : "Atividade"}</span></div>${exercises}</article>`;
+  }
+
+  historyTimestamp(item) { const timestamp = Date.parse(item.finished_at || item.performed_at || ""); return Number.isNaN(timestamp) ? 0 : timestamp; }
+  formatDate(value, includeTime = true) { const date = new Date(value); if (Number.isNaN(date.getTime())) return "Data não informada"; return new Intl.DateTimeFormat("pt-BR", {dateStyle:"long", ...(includeTime ? {timeStyle:"short"} : {})}).format(date); }
+  workoutDuration(item) { const start = Date.parse(item.started_at || ""), end = Date.parse(item.finished_at || ""); if (Number.isNaN(start) || Number.isNaN(end)) return "Duração não informada"; const minutes = Math.max(0, Math.round((end - start) / 60000)); return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60}min`; }
 
   configView() {
     return `<div class="grid">

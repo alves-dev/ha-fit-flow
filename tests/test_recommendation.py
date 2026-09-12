@@ -1,8 +1,15 @@
 from datetime import UTC, datetime, timedelta
 
+from custom_components.fit_flow.coordinator import resolve_activity
 from custom_components.fit_flow.recommendation import recommend, recommend_exercises
 
 NOW = datetime(2026, 9, 12, 12, tzinfo=UTC)
+
+
+def test_activity_can_be_resolved_by_display_name():
+    activities = [{"id": "running", "name": "Corrida"}]
+
+    assert resolve_activity(activities, " corrida ") == activities[0]
 
 
 def test_never_performed_wins_and_conflicts_are_directional():
@@ -15,7 +22,7 @@ def test_never_performed_wins_and_conflicts_are_directional():
         {
             "kind": "workout",
             "workout_id": "b",
-                "finished_at": (NOW - timedelta(hours=24)).isoformat(),
+            "finished_at": (NOW - timedelta(hours=24)).isoformat(),
         }
     ]
     result = recommend(

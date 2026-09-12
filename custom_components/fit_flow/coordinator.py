@@ -16,6 +16,22 @@ from .recommendation import recommend, recommend_exercises
 from .storage import FitFlowStorage
 
 
+def resolve_activity(
+    activities: list[dict[str, Any]], value: str
+) -> dict[str, Any] | None:
+    """Resolve an activity by stable ID or user-facing name."""
+    normalized = value.strip().casefold()
+    return next(
+        (
+            item
+            for item in activities
+            if item.get("id") == value
+            or str(item.get("name", "")).strip().casefold() == normalized
+        ),
+        None,
+    )
+
+
 class FitFlowCoordinator:
     def __init__(self, hass: HomeAssistant, entry_id: str) -> None:
         self.hass, self.entry_id = hass, entry_id
@@ -84,12 +100,16 @@ class FitFlowCoordinator:
     def _validate_item(
         self, collection: str, value: dict[str, Any], item_id: str | None
     ) -> None:
-        if collection in {
-            "muscle_groups",
-            "exercises",
-            "workouts",
-            "activities",
-        } and not str(value.get("name", "")).strip():
+        if (
+            collection
+            in {
+                "muscle_groups",
+                "exercises",
+                "workouts",
+                "activities",
+            }
+            and not str(value.get("name", "")).strip()
+        ):
             raise ValueError("Name is required")
         if collection == "exercises" and not any(
             item.get("id") == value.get("muscle_group_id")
@@ -221,11 +241,13 @@ class FitFlowCoordinator:
         when: datetime | None = None,
         duration_minutes: int | None = None,
     ) -> dict[str, Any]:
-        activity = next(
-            (x for x in self.data.activities if x.get("id") == activity_id), None
-        )
+        activity = resolve_activity(self.data.activities, activity_id)
         if not activity:
-            raise ValueError("Unknown activity")
+            available = ", ".join(
+                str(item.get("name", item.get("id"))) for item in self.data.activities
+            )
+            suffix = f" Available activities: {available}." if available else "."
+            raise ValueError(f"Unknown activity '{activity_id}'.{suffix}")
         if duration_minutes is not None and duration_minutes <= 0:
             raise ValueError("Duration must be positive")
         entry = {
