@@ -14,6 +14,7 @@ from homeassistant.util import dt as dt_util
 from .const import SIGNAL_UPDATE
 from .models import FitFlowData, Recommendation, new_id
 from .recommendation import recommend, recommend_exercises
+from .repairs import async_update_repairs
 from .storage import FitFlowStorage
 
 
@@ -75,6 +76,7 @@ class FitFlowCoordinator:
 
     async def save(self) -> None:
         await self.storage.async_save(self.data)
+        async_update_repairs(self.hass, self.data)
         async_dispatcher_send(self.hass, SIGNAL_UPDATE, self.entry_id)
 
     async def mutate(

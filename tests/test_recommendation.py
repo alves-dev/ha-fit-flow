@@ -1,7 +1,9 @@
 from datetime import UTC, datetime, timedelta
 
 from custom_components.fit_flow.coordinator import resolve_activity
+from custom_components.fit_flow.models import FitFlowData
 from custom_components.fit_flow.recommendation import recommend, recommend_exercises
+from custom_components.fit_flow.repairs import get_repair_issues
 
 NOW = datetime(2026, 9, 12, 12, tzinfo=UTC)
 
@@ -88,3 +90,52 @@ def test_exercises_never_used_are_recommended_first():
         }
     ]
     assert recommend_exercises(workout, exercises, history)["chest"] == ["new", "old"]
+
+
+def test_repairs_report_unlinked_and_empty_muscle_groups():
+    issues = get_repair_issues(
+        FitFlowData(
+            muscle_groups=[
+                {"id": "chest", "name": "Peito"},
+                {"id": "back", "name": "Costas"},
+                {"id": "legs", "name": "Pernas"},
+            ],
+            exercises=[{"id": "row", "name": "Remada", "muscle_group_id": "back"}],
+            workouts=[
+                {
+                    "id": "upper",
+                    "requirements": [{"muscle_group_id": "chest", "exercise_count": 1}],
+                }
+            ],
+        )
+    )
+
+    actual = {
+        (issue.translation_key, issue.placeholders["muscle_group"])
+        for issue in issues
+    }
+    assert actual == {
+        ("empty_muscle_group", "Peito"),
+        ("unused_muscle_group", "Costas"),
+        ("unused_muscle_group", "Pernas"),
+        ("empty_muscle_group", "Pernas"),
+    }
+
+
+def test_repairs_group_duplicate_exercise_names_case_insensitively():
+    issues = get_repair_issues(
+        FitFlowData(
+            exercises=[
+                {"id": "one", "name": "Supino Reto"},
+                {"id": "two", "name": " supino reto "},
+                {"id": "three", "name": "Agachamento"},
+            ]
+        )
+    )
+
+    assert [(issue.translation_key, issue.placeholders) for issue in issues] == [
+        (
+            "duplicate_exercise_name",
+            {"exercise_name": "Supino Reto", "count": "2"},
+        )
+    ]
