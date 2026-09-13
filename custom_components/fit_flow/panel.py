@@ -16,7 +16,7 @@ from .const import DOMAIN, INTEGRATION_VERSION
 
 PANEL_PATH = "fit-flow"
 STATIC_PATH = "/fit_flow_panel"
-PANEL_ASSET_REVISION = "4"
+PANEL_ASSET_REVISION = "5"
 
 
 async def async_register_panel(hass: HomeAssistant) -> None:
