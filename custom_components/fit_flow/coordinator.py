@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 from typing import Any
+from urllib.parse import urlparse
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -116,6 +117,10 @@ class FitFlowCoordinator:
             for item in self.data.muscle_groups
         ):
             raise ValueError("Unknown muscle group")
+        if collection == "exercises" and value.get("image_url"):
+            parsed = urlparse(str(value["image_url"]))
+            if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+                raise ValueError("Image URL must use HTTP or HTTPS")
         if collection == "workouts":
             requirements = value.get("requirements")
             if not isinstance(requirements, list) or not requirements:
@@ -222,6 +227,7 @@ class FitFlowCoordinator:
                     "exercise_id": x["id"],
                     "exercise_name": x.get("name", x["id"]),
                     "muscle_group_id": x.get("muscle_group_id"),
+                    "image_url": x.get("image_url"),
                 }
                 for x in exercises
             ],
