@@ -5,11 +5,16 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
+from homeassistant.util import dt as dt_util
+
 from .models import Recommendation
 
 
 def _parse(value: str | None) -> datetime | None:
-    return datetime.fromisoformat(value) if value else None
+    if not value:
+        return None
+    parsed = dt_util.parse_datetime(value)
+    return dt_util.as_utc(parsed) if parsed else None
 
 
 def latest_workout(history: list[dict[str, Any]], workout_id: str) -> datetime | None:
@@ -28,6 +33,7 @@ def recommend(
     history: list[dict[str, Any]],
     now: datetime,
 ) -> Recommendation:
+    now = dt_util.as_utc(now)
     blocked: dict[str, dict[str, Any]] = {}
     for rule in rules:
         target = rule.get("target_workout_id")
@@ -104,7 +110,7 @@ def recommend_exercises(
         candidates.sort(
             key=lambda item: (
                 item["id"] in last,
-                last.get(item["id"], datetime.min),
+                last.get(item["id"], datetime.min.replace(tzinfo=dt_util.UTC)),
                 item.get("name", ""),
                 item["id"],
             )
