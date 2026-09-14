@@ -71,7 +71,11 @@ def recommend(
         (_parse(item["until"]) for item in blocked.values()), default=None
     )
     return Recommendation(
-        eligible[0] if eligible else None, eligible, blocked, next_available
+        eligible[0] if eligible else None,
+        eligible,
+        blocked,
+        next_available,
+        eligible[1] if len(eligible) > 1 else None,
     )
 
 

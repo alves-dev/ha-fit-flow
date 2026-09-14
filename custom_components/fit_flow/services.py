@@ -19,9 +19,6 @@ SERVICE_SCHEMA = vol.Schema(
 
 
 async def async_register_services(hass: HomeAssistant) -> None:
-    if hass.services.has_service(DOMAIN, "log_activity"):
-        return
-
     async def handle(call: ServiceCall) -> None:
         entries = hass.config_entries.async_entries(DOMAIN)
         if not entries:
@@ -36,4 +33,26 @@ async def async_register_services(hass: HomeAssistant) -> None:
         except ValueError as error:
             raise HomeAssistantError(str(error)) from error
 
-    hass.services.async_register(DOMAIN, "log_activity", handle, schema=SERVICE_SCHEMA)
+    if not hass.services.has_service(DOMAIN, "log_activity"):
+        hass.services.async_register(
+            DOMAIN, "log_activity", handle, schema=SERVICE_SCHEMA
+        )
+
+    async def check_next_workout(call: ServiceCall) -> None:
+        del call
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            raise HomeAssistantError("FitFlow is not configured")
+        hass.data[DOMAIN][entries[0].entry_id].async_check_recommendation()
+
+    if not hass.services.has_service(DOMAIN, "check_next_workout"):
+        hass.services.async_register(DOMAIN, "check_next_workout", check_next_workout)
+
+    async def check_next_workout(call: ServiceCall) -> None:
+        del call
+        entries = hass.config_entries.async_entries(DOMAIN)
+        if not entries:
+            raise HomeAssistantError("FitFlow is not configured")
+        hass.data[DOMAIN][entries[0].entry_id].async_check_recommendation()
+
+    hass.services.async_register(DOMAIN, "check_next_workout", check_next_workout)

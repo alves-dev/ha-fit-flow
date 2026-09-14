@@ -16,7 +16,7 @@ from .const import DOMAIN, INTEGRATION_VERSION
 
 PANEL_PATH = "fit-flow"
 STATIC_PATH = "/fit_flow_panel"
-PANEL_ASSET_REVISION = "4"
+PANEL_ASSET_REVISION = "5"
 
 
 async def async_register_panel(hass: HomeAssistant) -> None:
@@ -29,6 +29,7 @@ async def async_register_panel(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, websocket_get)
     websocket_api.async_register_command(hass, websocket_mutate)
     websocket_api.async_register_command(hass, websocket_session)
+    websocket_api.async_register_command(hass, websocket_check_recommendation)
     await panel_custom.async_register_panel(
         hass=hass,
         frontend_url_path=PANEL_PATH,
@@ -62,7 +63,14 @@ async def websocket_get(hass: HomeAssistant, connection, msg: dict[str, Any]) ->
     {
         vol.Required("type"): "fit_flow/mutate",
         vol.Required("collection"): vol.In(
-            ["muscle_groups", "exercises", "workouts", "activities", "conflict_rules"]
+            [
+                "muscle_groups",
+                "exercises",
+                "workouts",
+                "activities",
+                "conflict_rules",
+                "history",
+            ]
         ),
         vol.Optional("item"): dict,
         vol.Optional("item_id"): str,
@@ -114,3 +122,15 @@ async def websocket_session(
         connection.send_result(msg["id"], {"success": True, "result": result})
     except ValueError as error:
         connection.send_error(msg["id"], "invalid", str(error))
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "fit_flow/recommendation/check"}
+)
+@websocket_api.async_response
+async def websocket_check_recommendation(
+    hass: HomeAssistant, connection, msg: dict[str, Any]
+) -> None:
+    _coordinator(hass).async_check_recommendation()
+    connection.send_result(msg["id"], {"success": True})
