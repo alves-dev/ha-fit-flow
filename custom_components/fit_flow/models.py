@@ -18,6 +18,7 @@ class Recommendation:
     eligible_workouts: list[str] = field(default_factory=list)
     blocked_workouts: dict[str, dict[str, Any]] = field(default_factory=dict)
     next_available_at: datetime | None = None
+    alternate_workout_id: str | None = None
 
 
 @dataclass

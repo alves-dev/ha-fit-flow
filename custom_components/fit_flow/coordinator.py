@@ -60,6 +60,7 @@ class FitFlowCoordinator:
             **self.data.as_dict(),
             "recommendation": {
                 "workout_id": recommendation.workout_id,
+                "alternate_workout_id": recommendation.alternate_workout_id,
                 "eligible_workouts": recommendation.eligible_workouts,
                 "blocked_workouts": recommendation.blocked_workouts,
                 "next_available_at": recommendation.next_available_at.isoformat()
@@ -99,6 +100,14 @@ class FitFlowCoordinator:
                 values.append(value)
             await self.save()
             return value
+
+    def async_check_recommendation(self) -> None:
+        """Notify HA and the panel that the current recommendation was checked."""
+        async_dispatcher_send(self.hass, SIGNAL_UPDATE, self.entry_id)
+        self.hass.bus.async_fire(
+            f"{SIGNAL_UPDATE}_checked",
+            {"workout_id": self.recommendation.workout_id},
+        )
 
     def _validate_item(
         self, collection: str, value: dict[str, Any], item_id: str | None
@@ -165,6 +174,14 @@ class FitFlowCoordinator:
 
     async def delete(self, collection: str, item_id: str) -> None:
         async with self._lock:
+            if collection == "history":
+                if not any(item.get("id") == item_id for item in self.data.history):
+                    raise ValueError("History entry not found")
+                self.data.history = [
+                    item for item in self.data.history if item.get("id") != item_id
+                ]
+                await self.save()
+                return
             if collection == "muscle_groups" and (
                 any(x.get("muscle_group_id") == item_id for x in self.data.exercises)
                 or any(
@@ -261,7 +278,7 @@ class FitFlowCoordinator:
         entry = {
             "id": new_id(),
             "kind": "activity",
-            "activity_id": activity_id,
+            "activity_id": activity["id"],
             "activity_name": activity.get("name", activity_id),
             "performed_at": (when or dt_util.now()).isoformat(),
         }

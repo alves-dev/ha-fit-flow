@@ -17,3 +17,7 @@ log_activity:
         number:
           min: 1
           mode: box
+
+check_next_workout:
+  name: Check next workout
+  description: Recalculate and publish the current workout recommendation.

@@ -5,10 +5,12 @@ from __future__ import annotations
 import hashlib
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
 from .models import FitFlowData
@@ -17,6 +19,7 @@ _ISSUE_PREFIXES = (
     "unused_muscle_group_",
     "empty_muscle_group_",
     "duplicate_exercise_name_",
+    "duplicate_activity_",
 )
 
 
@@ -82,6 +85,52 @@ def get_repair_issues(data: FitFlowData) -> list[RepairIssue]:
                 f"duplicate_exercise_name_{issue_id}",
                 "duplicate_exercise_name",
                 {"exercise_name": names[0], "count": str(len(names))},
+            )
+        )
+
+    activities = {item.get("id"): item for item in data.activities}
+    today = dt_util.as_local(dt_util.now()).date()
+    recent_start = today - timedelta(days=4)
+    activity_days: defaultdict[
+        tuple[str, object], list[dict[str, Any]]
+    ] = defaultdict(list)
+    for entry in data.history:
+        if entry.get("kind") != "activity":
+            continue
+        timestamp = dt_util.parse_datetime(entry.get("performed_at", ""))
+        if not timestamp:
+            continue
+        day = dt_util.as_local(timestamp).date()
+        if recent_start <= day <= today:
+            activity_id = entry.get("activity_id")
+            activity = activities.get(activity_id)
+            if not activity:
+                activity = next(
+                    (
+                        item
+                        for item in data.activities
+                        if _normalized_name(item.get("name"))
+                        == _normalized_name(entry.get("activity_name"))
+                    ),
+                    None,
+                )
+            canonical_id = activity.get("id") if activity else activity_id
+            activity_days[
+                (str(canonical_id or entry.get("activity_name", "")), day)
+            ].append(entry)
+    for (activity_id, day), entries in activity_days.items():
+        if len(entries) < 2:
+            continue
+        activity = activities.get(activity_id)
+        name = _name(activity.get("name") if activity else None) or _name(
+            entries[0].get("activity_name")
+        ) or activity_id
+        digest = hashlib.sha256(f"{activity_id}:{day}".encode()).hexdigest()[:16]
+        issues.append(
+            RepairIssue(
+                f"duplicate_activity_{digest}",
+                "duplicate_activity",
+                {"activity": name, "date": day.isoformat(), "count": str(len(entries))},
             )
         )
     return issues

@@ -20,6 +20,7 @@ async def async_setup_entry(
     entities: list[SensorEntity] = [
         LastActivitySensor(coordinator),
         NextWorkoutSensor(coordinator),
+        AlternateWorkoutSensor(coordinator),
     ]
     entities.extend(
         CountSensor(coordinator, "workout", item) for item in coordinator.data.workouts
@@ -78,10 +79,36 @@ class NextWorkoutSensor(FitFlowSensor):
         recommendation = self.coordinator.recommendation
         return {
             "workout_id": recommendation.workout_id,
+            "alternate_workout_id": recommendation.alternate_workout_id,
             "eligible_workouts": recommendation.eligible_workouts,
             "blocked_workouts": list(recommendation.blocked_workouts),
             "next_available_at": recommendation.next_available_at,
         }
+
+
+class AlternateWorkoutSensor(FitFlowSensor):
+    _attr_icon = "mdi:arm-flex-outline"
+
+    def __init__(self, coordinator):
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{coordinator.entry_id}_alternate_workout"
+        self._attr_name = "Alternate Workout"
+
+    @property
+    def native_value(self):
+        recommendation = self.coordinator.recommendation
+        return next(
+            (
+                x.get("name", x["id"])
+                for x in self.coordinator.data.workouts
+                if x["id"] == recommendation.alternate_workout_id
+            ),
+            None,
+        )
+
+    @property
+    def extra_state_attributes(self):
+        return {"workout_id": self.coordinator.recommendation.alternate_workout_id}
 
 
 class LastActivitySensor(FitFlowSensor):
@@ -131,5 +158,12 @@ class CountSensor(FitFlowSensor):
             1
             for x in self.coordinator.data.history
             if x.get("kind") == self.kind
-            and x.get(f"{self.kind}_id") == self.item["id"]
+            and (
+                x.get(f"{self.kind}_id") == self.item["id"]
+                or (
+                    self.kind == "activity"
+                    and str(x.get("activity_name", "")).strip().casefold()
+                    == str(self.item.get("name", "")).strip().casefold()
+                )
+            )
         )

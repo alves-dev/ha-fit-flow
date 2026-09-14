@@ -44,6 +44,7 @@ def test_never_performed_wins_and_conflicts_are_directional():
     assert result.workout_id == "a"
     assert "d" in result.blocked_workouts
     assert "b" in result.eligible_workouts
+    assert result.alternate_workout_id == "b"
 
 
 def test_all_blocked_reports_next_expiration():
@@ -139,3 +140,33 @@ def test_repairs_group_duplicate_exercise_names_case_insensitively():
             {"exercise_name": "Supino Reto", "count": "2"},
         )
     ]
+
+
+def test_repairs_find_duplicate_activity_records_in_recent_five_days():
+    issues = get_repair_issues(
+        FitFlowData(
+            activities=[{"id": "volleyball", "name": "Vôlei"}],
+            history=[
+                {
+                    "id": "one",
+                    "kind": "activity",
+                    "activity_id": "Vôlei",
+                    "activity_name": "Vôlei",
+                    "performed_at": "2026-09-12T18:00:00+00:00",
+                },
+                {
+                    "id": "two",
+                    "kind": "activity",
+                    "activity_id": "volleyball",
+                    "activity_name": "Vôlei",
+                    "performed_at": "2026-09-12T20:00:00+00:00",
+                },
+            ],
+        )
+    )
+
+    assert any(
+        issue.translation_key == "duplicate_activity"
+        and issue.placeholders["count"] == "2"
+        for issue in issues
+    )
