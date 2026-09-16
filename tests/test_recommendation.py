@@ -29,7 +29,6 @@ def test_never_performed_wins_and_conflicts_are_directional():
     ]
     result = recommend(
         workouts,
-        [],
         [
             {
                 "source_type": "workout",
@@ -58,7 +57,6 @@ def test_all_blocked_reports_next_expiration():
     ]
     result = recommend(
         workouts,
-        [],
         [
             {
                 "source_type": "activity",
@@ -72,6 +70,30 @@ def test_all_blocked_reports_next_expiration():
     )
     assert result.workout_id is None
     assert result.next_available_at == NOW + timedelta(hours=3)
+
+
+def test_recommendation_accepts_history_dates_without_timezone():
+    result = recommend(
+        [{"id": "a"}],
+        [
+            {
+                "source_type": "activity",
+                "source_id": "run",
+                "target_workout_id": "a",
+                "recovery_hours": 4,
+            }
+        ],
+        [
+            {
+                "kind": "activity",
+                "activity_id": "run",
+                "performed_at": "2026-09-12T07:00:00",
+            }
+        ],
+        NOW,
+    )
+
+    assert result.workout_id == "a"
 
 
 def test_exercises_never_used_are_recommended_first():

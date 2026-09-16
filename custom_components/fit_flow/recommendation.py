@@ -5,11 +5,16 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
+from homeassistant.util import dt as dt_util
+
 from .models import Recommendation
 
 
 def _parse(value: str | None) -> datetime | None:
-    return datetime.fromisoformat(value) if value else None
+    if not value:
+        return None
+    parsed = dt_util.parse_datetime(value)
+    return dt_util.as_utc(parsed) if parsed else None
 
 
 def latest_workout(history: list[dict[str, Any]], workout_id: str) -> datetime | None:
@@ -21,44 +26,57 @@ def latest_workout(history: list[dict[str, Any]], workout_id: str) -> datetime |
     return max((value for value in values if value), default=None)
 
 
+def _rule_occurrences(
+    rule: dict[str, Any], history: list[dict[str, Any]]
+) -> list[datetime]:
+    source_type = rule.get("source_type")
+    source_id = rule.get("source_id")
+    date_key = "finished_at" if source_type == "workout" else "performed_at"
+    return [
+        occurrence
+        for item in history
+        if item.get("kind") == source_type
+        and item.get(f"{source_type}_id") == source_id
+        for occurrence in [_parse(item.get(date_key))]
+        if occurrence
+    ]
+
+
+def _blocked_workout(
+    rule: dict[str, Any], history: list[dict[str, Any]], now: datetime
+) -> dict[str, Any] | None:
+    target = rule.get("target_workout_id")
+    source_id = rule.get("source_id")
+    source_type = rule.get("source_type")
+    if not target or not source_id or source_type not in ("workout", "activity"):
+        return None
+    recovery = timedelta(hours=float(rule.get("recovery_hours", 0)))
+    until = max(
+        (occurrence + recovery for occurrence in _rule_occurrences(rule, history)),
+        default=None,
+    )
+    if until is None or until <= now:
+        return None
+    return {"source": source_id, "source_type": source_type, "until": until.isoformat()}
+
+
 def recommend(
     workouts: list[dict[str, Any]],
-    activities: list[dict[str, Any]],
     rules: list[dict[str, Any]],
     history: list[dict[str, Any]],
     now: datetime,
 ) -> Recommendation:
+    now = dt_util.as_utc(now)
     blocked: dict[str, dict[str, Any]] = {}
     for rule in rules:
+        blocked_workout = _blocked_workout(rule, history, now)
         target = rule.get("target_workout_id")
-        source_id = rule.get("source_id")
-        source_type = rule.get("source_type")
-        if not target or not source_id or source_type not in ("workout", "activity"):
-            continue
-        occurrences = []
-        for item in history:
-            if (
-                source_type == "workout"
-                and item.get("kind") == "workout"
-                and item.get("workout_id") == source_id
+        if blocked_workout and target:
+            current = blocked.get(target)
+            if not current or _parse(blocked_workout["until"]) > _parse(
+                current["until"]
             ):
-                occurrences.append(_parse(item.get("finished_at")))
-            if (
-                source_type == "activity"
-                and item.get("kind") == "activity"
-                and item.get("activity_id") == source_id
-            ):
-                occurrences.append(_parse(item.get("performed_at")))
-        for occurrence in (value for value in occurrences if value):
-            until = occurrence + timedelta(hours=float(rule.get("recovery_hours", 0)))
-            if until > now and (
-                target not in blocked or until > _parse(blocked[target]["until"])
-            ):
-                blocked[target] = {
-                    "source": source_id,
-                    "source_type": source_type,
-                    "until": until.isoformat(),
-                }
+                blocked[target] = blocked_workout
     eligible = [item["id"] for item in workouts if item.get("id") not in blocked]
     eligible.sort(
         key=lambda item: (
@@ -104,7 +122,7 @@ def recommend_exercises(
         candidates.sort(
             key=lambda item: (
                 item["id"] in last,
-                last.get(item["id"], datetime.min),
+                last.get(item["id"], datetime.min.replace(tzinfo=dt_util.UTC)),
                 item.get("name", ""),
                 item["id"],
             )

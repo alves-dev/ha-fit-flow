@@ -48,7 +48,6 @@ class FitFlowCoordinator:
     def recommendation(self) -> Recommendation:
         return recommend(
             self.data.workouts,
-            self.data.activities,
             self.data.conflict_rules,
             self.data.history,
             dt_util.now(),
@@ -112,65 +111,71 @@ class FitFlowCoordinator:
     def _validate_item(
         self, collection: str, value: dict[str, Any], item_id: str | None
     ) -> None:
-        if (
-            collection
-            in {
-                "muscle_groups",
-                "exercises",
-                "workouts",
-                "activities",
-            }
-            and not str(value.get("name", "")).strip()
-        ):
+        if collection in {"muscle_groups", "exercises", "workouts", "activities"}:
+            self._validate_name(value)
+        if collection == "exercises":
+            self._validate_exercise(value)
+        if collection == "workouts":
+            self._validate_workout(value)
+        if collection == "conflict_rules":
+            self._validate_conflict_rule(value, item_id)
+
+    @staticmethod
+    def _validate_name(value: dict[str, Any]) -> None:
+        if not str(value.get("name", "")).strip():
             raise ValueError("Name is required")
-        if collection == "exercises" and not any(
+
+    def _validate_exercise(self, value: dict[str, Any]) -> None:
+        if not any(
             item.get("id") == value.get("muscle_group_id")
             for item in self.data.muscle_groups
         ):
             raise ValueError("Unknown muscle group")
-        if collection == "exercises" and value.get("image_url"):
+        if value.get("image_url"):
             parsed = urlparse(str(value["image_url"]))
             if parsed.scheme not in {"http", "https"} or not parsed.netloc:
                 raise ValueError("Image URL must use HTTP or HTTPS")
-        if collection == "workouts":
-            requirements = value.get("requirements")
-            if not isinstance(requirements, list) or not requirements:
-                raise ValueError("At least one muscle group is required")
-            groups = [item.get("muscle_group_id") for item in requirements]
-            if len(groups) != len(set(groups)):
-                raise ValueError("A muscle group can only appear once per workout")
-            known = {item.get("id") for item in self.data.muscle_groups}
-            if any(item.get("muscle_group_id") not in known for item in requirements):
-                raise ValueError("Unknown muscle group in workout")
-            if any(int(item.get("exercise_count") or 0) < 1 for item in requirements):
-                raise ValueError("Exercise quantity must be at least one")
-        if collection == "conflict_rules":
-            source_type = value.get("source_type")
-            source_items = (
-                self.data.activities
-                if source_type == "activity"
-                else self.data.workouts
-            )
-            if source_type not in {"activity", "workout"} or not any(
-                item.get("id") == value.get("source_id") for item in source_items
-            ):
-                raise ValueError("Unknown conflict source")
-            if not any(
-                item.get("id") == value.get("target_workout_id")
-                for item in self.data.workouts
-            ):
-                raise ValueError("Unknown target workout")
-            if float(value.get("recovery_hours") or 0) <= 0:
-                raise ValueError("Recovery must be greater than zero")
-            duplicate = any(
-                item.get("id") != item_id
-                and item.get("source_type") == source_type
-                and item.get("source_id") == value.get("source_id")
-                and item.get("target_workout_id") == value.get("target_workout_id")
-                for item in self.data.conflict_rules
-            )
-            if duplicate:
-                raise ValueError("This conflict rule already exists")
+
+    def _validate_workout(self, value: dict[str, Any]) -> None:
+        requirements = value.get("requirements")
+        if not isinstance(requirements, list) or not requirements:
+            raise ValueError("At least one muscle group is required")
+        groups = [item.get("muscle_group_id") for item in requirements]
+        if len(groups) != len(set(groups)):
+            raise ValueError("A muscle group can only appear once per workout")
+        known = {item.get("id") for item in self.data.muscle_groups}
+        if any(item.get("muscle_group_id") not in known for item in requirements):
+            raise ValueError("Unknown muscle group in workout")
+        if any(int(item.get("exercise_count") or 0) < 1 for item in requirements):
+            raise ValueError("Exercise quantity must be at least one")
+
+    def _validate_conflict_rule(
+        self, value: dict[str, Any], item_id: str | None
+    ) -> None:
+        source_type = value.get("source_type")
+        source_items = (
+            self.data.activities if source_type == "activity" else self.data.workouts
+        )
+        if source_type not in {"activity", "workout"} or not any(
+            item.get("id") == value.get("source_id") for item in source_items
+        ):
+            raise ValueError("Unknown conflict source")
+        if not any(
+            item.get("id") == value.get("target_workout_id")
+            for item in self.data.workouts
+        ):
+            raise ValueError("Unknown target workout")
+        if float(value.get("recovery_hours") or 0) <= 0:
+            raise ValueError("Recovery must be greater than zero")
+        duplicate = any(
+            item.get("id") != item_id
+            and item.get("source_type") == source_type
+            and item.get("source_id") == value.get("source_id")
+            and item.get("target_workout_id") == value.get("target_workout_id")
+            for item in self.data.conflict_rules
+        )
+        if duplicate:
+            raise ValueError("This conflict rule already exists")
 
     async def delete(self, collection: str, item_id: str) -> None:
         async with self._lock:
