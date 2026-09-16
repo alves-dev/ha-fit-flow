@@ -8,6 +8,7 @@ All user-relevant changes are documented in this file.
 
 - Added readable unlock dates and workout completion counts with compact bars to the panel cards.
 - Added inline editing for muscle-group names while preserving their stable IDs and existing references.
+- Added the ability to remove a muscle-group requirement while editing a workout.
 - Improved panel loading feedback and theme-variable compatibility.
 
 ## [2026.9.1] - 2026-09-13
