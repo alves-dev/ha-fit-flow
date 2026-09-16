@@ -29,7 +29,6 @@ def test_never_performed_wins_and_conflicts_are_directional():
     ]
     result = recommend(
         workouts,
-        [],
         [
             {
                 "source_type": "workout",
@@ -58,7 +57,6 @@ def test_all_blocked_reports_next_expiration():
     ]
     result = recommend(
         workouts,
-        [],
         [
             {
                 "source_type": "activity",
@@ -77,7 +75,6 @@ def test_all_blocked_reports_next_expiration():
 def test_recommendation_accepts_history_dates_without_timezone():
     result = recommend(
         [{"id": "a"}],
-        [],
         [
             {
                 "source_type": "activity",

@@ -40,8 +40,7 @@ def _normalized_name(value: Any) -> str:
     return _name(value).casefold()
 
 
-def get_repair_issues(data: FitFlowData) -> list[RepairIssue]:
-    """Return the current data-quality issues for a FitFlow data set."""
+def _muscle_group_issues(data: FitFlowData) -> list[RepairIssue]:
     issues: list[RepairIssue] = []
     workout_groups = {
         requirement.get("muscle_group_id")
@@ -70,12 +69,17 @@ def get_repair_issues(data: FitFlowData) -> list[RepairIssue]:
                 )
             )
 
+    return issues
+
+
+def _duplicate_exercise_issues(data: FitFlowData) -> list[RepairIssue]:
     exercises_by_name: defaultdict[str, list[str]] = defaultdict(list)
     for exercise in data.exercises:
         normalized = _normalized_name(exercise.get("name"))
         if normalized:
             exercises_by_name[normalized].append(_name(exercise.get("name")))
 
+    issues: list[RepairIssue] = []
     for normalized, names in exercises_by_name.items():
         if len(names) < 2:
             continue
@@ -88,52 +92,86 @@ def get_repair_issues(data: FitFlowData) -> list[RepairIssue]:
             )
         )
 
+    return issues
+
+
+def _recent_activity_key(
+    entry: dict[str, Any],
+    activities: dict[str, dict[str, Any]],
+    configured_activities: list[dict[str, Any]],
+    recent_start: object,
+    today: object,
+) -> tuple[str, object] | None:
+    if entry.get("kind") != "activity":
+        return None
+    timestamp = dt_util.parse_datetime(entry.get("performed_at", ""))
+    if not timestamp:
+        return None
+    day = dt_util.as_local(timestamp).date()
+    if not recent_start <= day <= today:
+        return None
+    activity_id = entry.get("activity_id")
+    activity = activities.get(activity_id) or next(
+        (
+            item
+            for item in configured_activities
+            if _normalized_name(item.get("name"))
+            == _normalized_name(entry.get("activity_name"))
+        ),
+        None,
+    )
+    canonical_id = activity.get("id") if activity else activity_id
+    return str(canonical_id or entry.get("activity_name", "")), day
+
+
+def _duplicate_activity_issue(
+    activity_id: str,
+    day: object,
+    entries: list[dict[str, Any]],
+    activities: dict[str, dict[str, Any]],
+) -> RepairIssue:
+    activity = activities.get(activity_id)
+    name = (
+        _name(activity.get("name") if activity else None)
+        or _name(entries[0].get("activity_name"))
+        or activity_id
+    )
+    digest = hashlib.sha256(f"{activity_id}:{day}".encode()).hexdigest()[:16]
+    return RepairIssue(
+        f"duplicate_activity_{digest}",
+        "duplicate_activity",
+        {"activity": name, "date": day.isoformat(), "count": str(len(entries))},
+    )
+
+
+def _duplicate_activity_issues(data: FitFlowData) -> list[RepairIssue]:
+    issues: list[RepairIssue] = []
     activities = {item.get("id"): item for item in data.activities}
     today = dt_util.as_local(dt_util.now()).date()
     recent_start = today - timedelta(days=4)
-    activity_days: defaultdict[
-        tuple[str, object], list[dict[str, Any]]
-    ] = defaultdict(list)
+    activity_days: defaultdict[tuple[str, object], list[dict[str, Any]]] = defaultdict(
+        list
+    )
     for entry in data.history:
-        if entry.get("kind") != "activity":
-            continue
-        timestamp = dt_util.parse_datetime(entry.get("performed_at", ""))
-        if not timestamp:
-            continue
-        day = dt_util.as_local(timestamp).date()
-        if recent_start <= day <= today:
-            activity_id = entry.get("activity_id")
-            activity = activities.get(activity_id)
-            if not activity:
-                activity = next(
-                    (
-                        item
-                        for item in data.activities
-                        if _normalized_name(item.get("name"))
-                        == _normalized_name(entry.get("activity_name"))
-                    ),
-                    None,
-                )
-            canonical_id = activity.get("id") if activity else activity_id
-            activity_days[
-                (str(canonical_id or entry.get("activity_name", "")), day)
-            ].append(entry)
+        key = _recent_activity_key(
+            entry, activities, data.activities, recent_start, today
+        )
+        if key:
+            activity_days[key].append(entry)
     for (activity_id, day), entries in activity_days.items():
         if len(entries) < 2:
             continue
-        activity = activities.get(activity_id)
-        name = _name(activity.get("name") if activity else None) or _name(
-            entries[0].get("activity_name")
-        ) or activity_id
-        digest = hashlib.sha256(f"{activity_id}:{day}".encode()).hexdigest()[:16]
-        issues.append(
-            RepairIssue(
-                f"duplicate_activity_{digest}",
-                "duplicate_activity",
-                {"activity": name, "date": day.isoformat(), "count": str(len(entries))},
-            )
-        )
+        issues.append(_duplicate_activity_issue(activity_id, day, entries, activities))
     return issues
+
+
+def get_repair_issues(data: FitFlowData) -> list[RepairIssue]:
+    """Return the current data-quality issues for a FitFlow data set."""
+    return [
+        *_muscle_group_issues(data),
+        *_duplicate_exercise_issues(data),
+        *_duplicate_activity_issues(data),
+    ]
 
 
 @callback
