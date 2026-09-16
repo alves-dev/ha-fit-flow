@@ -2,6 +2,13 @@
 
 All user-relevant changes are documented in this file.
 
+## [2026.9.2] - 2026-09-16
+
+### Added
+
+- Added readable unlock dates and workout completion counts with compact bars to the panel cards.
+- Improved panel loading feedback and theme-variable compatibility.
+
 ## [2026.9.1] - 2026-09-13
 
 ### Added
