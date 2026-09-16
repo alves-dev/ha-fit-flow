@@ -152,6 +152,13 @@ async def test_coordinator_mutations_and_validation():
     updated = await coordinator.mutate("activities", {"name": "Corrida leve"}, "run")
     assert updated == {"id": "run", "name": "Corrida leve"}
 
+    renamed_group = await coordinator.mutate(
+        "muscle_groups", {"name": "Peitoral"}, "chest"
+    )
+    assert renamed_group == {"id": "chest", "name": "Peitoral"}
+    assert coordinator.data.exercises[0]["muscle_group_id"] == "chest"
+    assert coordinator.data.workouts[0]["requirements"][0]["muscle_group_id"] == "chest"
+
     invalid_items = [
         ("activities", {}, "Name is required"),
         (
