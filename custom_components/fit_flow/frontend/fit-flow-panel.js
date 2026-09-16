@@ -30,13 +30,14 @@ class FitFlowPanel extends HTMLElement {
       input,select { width:100%; box-sizing:border-box; padding:10px; border:1px solid var(--divider-color); border-radius:8px; background:var(--input-fill-color,var(--secondary-background-color)); color:var(--primary-text-color); font:inherit; } select { cursor:pointer; }
       form { max-width:600px; } .section-title { margin-top:28px; } .check { display:flex; align-items:center; gap:8px; padding:8px 0; } .check input { width:auto; } .blocked { color:var(--error-color); } .hint { font-size:.9em; } .req { display:grid; grid-template-columns:1fr 90px auto; gap:8px; align-items:end; margin:8px 0; }
       .config-sections { display:flex; flex-direction:column; gap:18px; } .config-section { width:100%; box-sizing:border-box; } .section-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; } .section-header h2 { margin-bottom:4px; } .section-count { color:var(--secondary-text-color); font-size:.9em; white-space:nowrap; } .section-toolbar { display:grid; grid-template-columns:minmax(0,2fr) minmax(180px,1fr); gap:10px; margin:18px 0 8px; } .exercise-row > span { min-width:0; } .exercise-row .exercise-link + span { min-width:0; } .exercise-name { font-weight:500; } .empty-filter { padding:16px 0 8px; color:var(--secondary-text-color); } .exercise-list { max-height:620px; overflow:auto; padding-right:4px; }
+      .exercise-row[hidden] { display:none; }
       .workout-count { display:flex; align-items:baseline; gap:6px; margin:14px 0 6px; } .workout-count strong { font-size:1.5em; } .workout-count span { color:var(--secondary-text-color); font-size:.9em; } .workout-chart { block-size:6px; margin:0 0 16px; overflow:hidden; border-radius:999px; background:var(--divider-color); } .workout-chart span { display:block; block-size:100%; border-radius:inherit; background:var(--primary-color); }
       .exercise-frequency { color:var(--secondary-text-color); font-weight:400; }
       .date-heading { margin:28px 0 10px; font-size:1.05em; color:var(--primary-text-color); } .history-item { display:block; padding:16px 0; border-bottom:1px solid var(--divider-color); } .history-item:last-child { border:0; } .history-top { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; } .history-name { font-size:1.05em; font-weight:600; } .history-meta { margin-top:5px; color:var(--secondary-text-color); font-size:.9em; } .badge { display:inline-block; padding:4px 9px; border-radius:12px; background:var(--secondary-background-color); color:var(--secondary-text-color); font-size:.78em; white-space:nowrap; } .history-details { margin-top:10px; color:var(--secondary-text-color); } .history-details summary { cursor:pointer; color:var(--primary-color); } .exercise-link { display:inline-flex; align-items:center; gap:8px; color:var(--primary-text-color); } .exercise-image { width:54px; height:54px; border-radius:8px; object-fit:cover; vertical-align:middle; background:var(--secondary-background-color); }
       @media(max-width:600px){ :host{padding:12px;} .top{align-items:flex-start; flex-direction:column;} .section-toolbar{grid-template-columns:1fr;} .section-header{display:block;} .section-count{display:block; margin-top:6px;} .req{grid-template-columns:1fr 80px;} }
       button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible { outline:2px solid var(--primary-color); outline-offset:2px; }
     </style><div class="app"><div class="top"><div class="brand"><ha-icon class="brand-icon" icon="mdi:arm-flex" aria-hidden="true"></ha-icon><div><h1>FitFlow</h1><p>Treinos flexíveis, escolhidos pelo seu histórico.</p></div></div><nav class="tabs" aria-label="Navegação do FitFlow"><button type="button" data-view="today" aria-current="page">Hoje</button><button type="button" data-view="history">Histórico</button><button type="button" data-view="config">Configuração</button></nav></div><main id="content" aria-live="polite"><div class="card"><p>Carregando FitFlow...</p></div></main></div>`;
-    this.addEventListener("click", (event) => this.handleClick(event)); this.addEventListener("input", (event) => this.handleInput(event)); this.addEventListener("submit", (event) => this.handleSubmit(event));
+    this.addEventListener("click", (event) => this.handleClick(event)); this.addEventListener("input", (event) => this.handleInput(event)); this.addEventListener("change", (event) => this.handleChange(event)); this.addEventListener("submit", (event) => this.handleSubmit(event));
   }
 
   renderContent() { const content = this.querySelector("#content"); if (content) content.innerHTML = this._view === "history" ? this.historyView() : this._view === "config" ? this.configView() : this.todayView(); this.querySelectorAll("[data-view]").forEach((item) => { if (item.dataset.view === this._view) item.setAttribute("aria-current", "page"); else item.removeAttribute("aria-current"); }); }
@@ -89,7 +90,7 @@ class FitFlowPanel extends HTMLElement {
   }
 
   simpleConfigCard(collection, title, hint) { return `<section class="card config-section"><div class="section-header"><div><h2>${title}</h2><p class="hint">${hint}</p></div><span class="section-count">${this._data[collection].length} registro(s)</span></div>${this._data[collection].map((item) => `<div class="row"><span>${esc(item.name)}</span><button class="secondary" data-delete="${collection}" data-id="${esc(item.id)}">Excluir</button></div>`).join("") || "<p>Nenhum registro.</p>"}<details><summary>Adicionar</summary><form data-collection="${collection}"><label>Nome<input name="name" required></label><button>Salvar</button></form></details></section>`; }
-  exerciseRows() { return this._data.exercises.map((item) => this._editingExerciseId === item.id ? `<div class="exercise-row">${this.exerciseEditForm(item)}</div>` : `<div class="row exercise-row" data-exercise-row data-search="${esc(`${item.name} ${this.groupName(item.muscle_group_id)}`.toLocaleLowerCase())}" data-group="${esc(item.muscle_group_id)}"><span>${this.imageMarkup(item)} <span class="exercise-name">${esc(item.name)}</span><small class="muted"> · ${esc(this.groupName(item.muscle_group_id))}</small></span><div class="actions"><button class="secondary" data-edit-exercise="${esc(item.id)}">Editar</button><button class="secondary" data-delete="exercises" data-id="${esc(item.id)}">Excluir</button></div></div>`).join("") || "<p>Nenhum exercício.</p>"; }
+  exerciseRows() { return this._data.exercises.map((item) => this._editingExerciseId === item.id ? `<div class="exercise-row">${this.exerciseEditForm(item)}</div>` : `<div class="row exercise-row" data-exercise-row data-search="${esc(String(item.name || "").toLocaleLowerCase("pt-BR"))}" data-group="${esc(item.muscle_group_id)}"><span>${this.imageMarkup(item)} <span class="exercise-name">${esc(item.name)}</span><small class="muted"> · ${esc(this.groupName(item.muscle_group_id))}</small></span><div class="actions"><button class="secondary" data-edit-exercise="${esc(item.id)}">Editar</button><button class="secondary" data-delete="exercises" data-id="${esc(item.id)}">Excluir</button></div></div>`).join("") || "<p>Nenhum exercício.</p>"; }
   groupOptions(selectedId = "") { return this._data.muscle_groups.map((item) => `<option value="${esc(item.id)}" ${item.id === selectedId ? "selected" : ""}>${esc(item.name)}</option>`).join("") || '<option value="">Cadastre um grupo primeiro</option>'; }
   workoutOptions() { return this._data.workouts.map((item) => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join("") || '<option value="">Cadastre um treino primeiro</option>'; }
   sourceOptions() { return [...this._data.workouts.map((item) => `<option value="${esc(item.id)}">Treino · ${esc(item.name)}</option>`), ...this._data.activities.map((item) => `<option value="${esc(item.id)}">Atividade · ${esc(item.name)}</option>`)].join(""); }
@@ -103,15 +104,22 @@ class FitFlowPanel extends HTMLElement {
   groupName(id) { return this._data.muscle_groups.find((x) => x.id === id)?.name || id; }
   workoutName(id) { return this._data.workouts.find((x) => x.id === id)?.name || id; }
   handleInput(event) {
-    if (!event.target.matches("[data-exercise-search], [data-exercise-filter]")) return;
-    const section = event.target.closest(".config-section");
-    const search = section.querySelector("[data-exercise-search]").value.trim().toLocaleLowerCase();
+    if (event.target.matches("[data-exercise-search]")) this.filterExercises(event.target);
+  }
+  handleChange(event) {
+    if (event.target.matches("[data-exercise-filter]")) this.filterExercises(event.target);
+  }
+  filterExercises(control) {
+    const section = control.closest(".config-section");
+    if (!section) return;
+    const search = section.querySelector("[data-exercise-search]").value.trim().toLocaleLowerCase("pt-BR");
     const group = section.querySelector("[data-exercise-filter]").value;
     const rows = [...section.querySelectorAll("[data-exercise-row]")];
     let visible = 0;
     rows.forEach((row) => {
       const matches = (!search || row.dataset.search.includes(search)) && (!group || row.dataset.group === group);
       row.hidden = !matches;
+      row.style.display = matches ? "" : "none";
       if (matches) visible += 1;
     });
     let empty = section.querySelector("[data-filter-empty]");
