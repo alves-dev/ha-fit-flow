@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026.9.3] - 2026-09-19
+
+### Added
+
+- Added a Home Assistant Repair for exercises without an image link.
+- Added an in-panel image/GIF preview modal for exercise media.
+
+### Changed
+
+- Updated the integration version to `2026.9.3`.
+
 ## [Current State] - Context Mesh Added
 
 ### Existing Features (documented)
@@ -27,4 +38,3 @@
 *Context Mesh added: 2026-09-19*
 *This changelog documents the state when Context Mesh was added.*
 *Future changes will be tracked below.*
-

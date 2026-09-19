@@ -10,7 +10,7 @@ People need a workout routine that adapts to what they have recently done instea
 
 ## Current State
 
-The integration is implemented as a local Home Assistant custom component, version `2026.9.2`, supporting Home Assistant `2026.8+`. It has a single-instance setup flow, an administrator panel, sensors, actions, persistent storage, data-quality repairs, automated tests, CI validation, HACS metadata, and release workflows.
+The integration is implemented as a local Home Assistant custom component, version `2026.9.3`, supporting Home Assistant `2026.8+`. It has a single-instance setup flow, an administrator panel, sensors, actions, persistent storage, data-quality repairs, automated tests, CI validation, HACS metadata, and release workflows.
 
 The repository includes the domain specification in `FITFLOW_SPEC.md`, user and contributor documentation in `README.md` and `docs/`, Python integration code under `custom_components/fit_flow/`, and tests under `tests/`.
 
@@ -44,4 +44,3 @@ The repository includes the domain specification in `FITFLOW_SPEC.md`, user and 
 - **Created**: 2026-09-19 (Phase: Intent)
 - **Status**: Active
 - **Note**: Generated from existing codebase analysis.
-

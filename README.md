@@ -1,6 +1,6 @@
 # FitFlow
 
-![Version](https://img.shields.io/badge/Version-2026.9.2-41BDF5?style=flat-square)
+![Version](https://img.shields.io/badge/Version-2026.9.3-41BDF5?style=flat-square)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.8%2B-41BDF5?logo=homeassistant)
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=alves-dev&repository=ha-fit-flow&category=integration)

@@ -11,6 +11,7 @@ from custom_components.fit_flow import (
 from custom_components.fit_flow.config_flow import FitFlowConfigFlow
 from custom_components.fit_flow.models import FitFlowData, Recommendation
 from custom_components.fit_flow.panel import _coordinator
+from custom_components.fit_flow.repairs import get_repair_issues
 from custom_components.fit_flow.sensor import (
     AlternateWorkoutSensor,
     CountSensor,
@@ -233,3 +234,22 @@ def test_panel_coordinator_requires_configuration():
     hass.data["fit_flow"] = {"entry": coordinator}
     hass.config_entries.entries = [SimpleNamespace(entry_id="entry")]
     assert _coordinator(hass) is coordinator
+
+
+def test_repairs_identify_exercises_without_image_links():
+    issues = get_repair_issues(
+        FitFlowData(
+            exercises=[
+                {"id": "squat", "name": "Agachamento", "image_url": ""},
+                {
+                    "id": "press",
+                    "name": "Supino",
+                    "image_url": "https://example.com/press.gif",
+                },
+            ]
+        )
+    )
+
+    assert [(issue.issue_id, issue.translation_key) for issue in issues] == [
+        ("missing_exercise_image_squat", "missing_exercise_image")
+    ]
