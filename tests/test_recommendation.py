@@ -123,7 +123,14 @@ def test_repairs_report_unlinked_and_empty_muscle_groups():
                 {"id": "back", "name": "Costas"},
                 {"id": "legs", "name": "Pernas"},
             ],
-            exercises=[{"id": "row", "name": "Remada", "muscle_group_id": "back"}],
+            exercises=[
+                {
+                    "id": "row",
+                    "name": "Remada",
+                    "muscle_group_id": "back",
+                    "image_url": "https://example.com/row.jpg",
+                }
+            ],
             workouts=[
                 {
                     "id": "upper",
@@ -149,9 +156,21 @@ def test_repairs_group_duplicate_exercise_names_case_insensitively():
     issues = get_repair_issues(
         FitFlowData(
             exercises=[
-                {"id": "one", "name": "Supino Reto"},
-                {"id": "two", "name": " supino reto "},
-                {"id": "three", "name": "Agachamento"},
+                {
+                    "id": "one",
+                    "name": "Supino Reto",
+                    "image_url": "https://example.com/one.jpg",
+                },
+                {
+                    "id": "two",
+                    "name": " supino reto ",
+                    "image_url": "https://example.com/two.jpg",
+                },
+                {
+                    "id": "three",
+                    "name": "Agachamento",
+                    "image_url": "https://example.com/three.jpg",
+                },
             ]
         )
     )
@@ -174,14 +193,14 @@ def test_repairs_find_duplicate_activity_records_in_recent_five_days():
                     "kind": "activity",
                     "activity_id": "Vôlei",
                     "activity_name": "Vôlei",
-                    "performed_at": "2026-09-12T18:00:00+00:00",
+                    "performed_at": "2026-09-17T18:00:00+00:00",
                 },
                 {
                     "id": "two",
                     "kind": "activity",
                     "activity_id": "volleyball",
                     "activity_name": "Vôlei",
-                    "performed_at": "2026-09-12T20:00:00+00:00",
+                    "performed_at": "2026-09-17T20:00:00+00:00",
                 },
             ],
         )

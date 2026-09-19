@@ -2,6 +2,13 @@
 
 All user-relevant changes are documented in this file.
 
+## [2026.9.3] - 2026-09-19
+
+### Added
+
+- Added a Home Assistant Repair warning for exercises without an image link.
+- Added an in-panel image/GIF preview modal for exercise media during workouts, configuration, and history.
+
 ## [2026.9.2] - 2026-09-16
 
 ### Added

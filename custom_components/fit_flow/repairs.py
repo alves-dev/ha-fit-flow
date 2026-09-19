@@ -20,6 +20,7 @@ _ISSUE_PREFIXES = (
     "empty_muscle_group_",
     "duplicate_exercise_name_",
     "duplicate_activity_",
+    "missing_exercise_image_",
 )
 
 
@@ -92,6 +93,22 @@ def _duplicate_exercise_issues(data: FitFlowData) -> list[RepairIssue]:
             )
         )
 
+    return issues
+
+
+def _missing_exercise_image_issues(data: FitFlowData) -> list[RepairIssue]:
+    issues: list[RepairIssue] = []
+    for exercise in data.exercises:
+        if _name(exercise.get("image_url")):
+            continue
+        exercise_id = str(exercise.get("id") or "unknown")
+        issues.append(
+            RepairIssue(
+                f"missing_exercise_image_{exercise_id}",
+                "missing_exercise_image",
+                {"exercise_name": _name(exercise.get("name")) or exercise_id},
+            )
+        )
     return issues
 
 
@@ -170,6 +187,7 @@ def get_repair_issues(data: FitFlowData) -> list[RepairIssue]:
     return [
         *_muscle_group_issues(data),
         *_duplicate_exercise_issues(data),
+        *_missing_exercise_image_issues(data),
         *_duplicate_activity_issues(data),
     ]
 
