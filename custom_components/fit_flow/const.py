@@ -4,7 +4,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "fit_flow"
 INTEGRATION_NAME = "FitFlow"
-INTEGRATION_VERSION = "2026.9.3"
+INTEGRATION_VERSION = "2026.9.4"
 PLATFORMS = (Platform.SENSOR,)
 STORAGE_VERSION = 1
 SIGNAL_UPDATE = f"{DOMAIN}_update"

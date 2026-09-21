@@ -2,6 +2,13 @@
 
 All user-relevant changes are documented in this file.
 
+## [2026.9.4] - 2026-09-21
+
+### Added
+
+- Added collapsible exercise groups with right-aligned progress icons for not started, in-progress, completed, and over-planned states.
+- Added a “Treino anterior” tag to exercises used in the most recently completed session of the active workout.
+
 ## [2026.9.3] - 2026-09-19
 
 ### Added
