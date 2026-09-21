@@ -18,7 +18,7 @@ Alternatives are not documented in the existing codebase. No separate API server
 
 ## Outcomes
 
-The current implementation supports the panel, five sensor categories (next, alternate, last activity, workout counts, and activity counts), two actions, and repair updates from the same coordinator state. Repairs include missing exercise image links. The panel renders valid image URLs as in-place preview buttons and opens images or GIFs in a larger modal during workouts, configuration, and history views.
+The current implementation supports the panel, five sensor categories (next, alternate, last activity, workout counts, and activity counts), two actions, and repair updates from the same coordinator state. Repairs include missing exercise image links. The panel renders valid image URLs as in-place preview buttons and opens images or GIFs in a larger modal during workouts, configuration, and history views. During an active workout, it tags exercises that were used in the most recently completed session of that same workout and provides collapsible exercise groups with right-aligned progress icons.
 
 ## Related
 

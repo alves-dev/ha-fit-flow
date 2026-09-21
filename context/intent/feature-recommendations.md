@@ -16,6 +16,7 @@ The user needs a useful next workout without manually tracking rest periods or r
 - [ ] Multiple rules for one target use the most restrictive active block.
 - [ ] When all workouts are blocked, the next availability is reported.
 - [ ] Exercise suggestions satisfy workout muscle-group quantities and favor less-recently-used exercises.
+- [ ] During a workout, exercises used in the most recently completed session of that same workout are identified with a visible tag.
 
 ## Related
 
@@ -27,4 +28,3 @@ The user needs a useful next workout without manually tracking rest periods or r
 
 - **Created**: 2026-09-19 (Phase: Intent)
 - **Status**: Active (already implemented)
-
