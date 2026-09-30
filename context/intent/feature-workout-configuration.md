@@ -15,6 +15,7 @@ Flexible routines need to reflect a person’s available exercises, preferred wo
 - [ ] Recovery conflict rules can relate an activity or workout to a target workout.
 - [ ] Invalid names, references, quantities, URLs, and duplicate rules are rejected.
 - [ ] Referenced muscle groups and active workouts cannot be removed in ways that would break existing data.
+- [ ] Exercises can have an optional description that can be edited in configuration or during an active workout.
 
 ## Related
 
@@ -26,4 +27,3 @@ Flexible routines need to reflect a person’s available exercises, preferred wo
 
 - **Created**: 2026-09-19 (Phase: Intent)
 - **Status**: Active (already implemented)
-

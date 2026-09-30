@@ -151,6 +151,16 @@ async def test_coordinator_mutations_and_validation():
     assert storage.async_save.await_count == 1
     updated = await coordinator.mutate("activities", {"name": "Corrida leve"}, "run")
     assert updated == {"id": "run", "name": "Corrida leve"}
+    exercise = await coordinator.mutate(
+        "exercises",
+        {
+            "name": "Supino inclinado",
+            "muscle_group_id": "chest",
+            "description": "Manter os ombros apoiados.",
+        },
+        "press",
+    )
+    assert exercise["description"] == "Manter os ombros apoiados."
 
     renamed_group = await coordinator.mutate(
         "muscle_groups", {"name": "Peitoral"}, "chest"
@@ -245,6 +255,7 @@ async def test_coordinator_mutations_and_validation():
 @pytest.mark.asyncio
 async def test_coordinator_sessions_and_activity_logging():
     coordinator, _storage = coordinator_with_data()
+    coordinator.data.exercises[0]["description"] = "Manter os ombros apoiados."
     with pytest.raises(ValueError, match="Unknown workout"):
         await coordinator.start("missing")
     session = await coordinator.start("upper")
@@ -257,6 +268,7 @@ async def test_coordinator_sessions_and_activity_logging():
     await coordinator.update_session(["press"])
     entry = await coordinator.finish()
     assert entry["exercises"][0]["exercise_id"] == "press"
+    assert entry["exercises"][0]["description"] == "Manter os ombros apoiados."
     assert coordinator.data.active_session is None
 
     with pytest.raises(ValueError, match="No active"):

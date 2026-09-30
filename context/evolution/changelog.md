@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.9.5] - 2026-09-30
+
+### Added
+
+- Added optional exercise descriptions, editable in configuration and during an active workout.
+- Added browser persistence for expanded/collapsed exercise groups during active workouts.
+
 ## [2026.9.4] - 2026-09-21
 
 ### Added
