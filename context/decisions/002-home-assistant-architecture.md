@@ -20,6 +20,8 @@ Alternatives are not documented in the existing codebase. No separate API server
 
 The current implementation supports the panel, five sensor categories (next, alternate, last activity, workout counts, and activity counts), two actions, and repair updates from the same coordinator state. Repairs include missing exercise image links. The panel renders valid image URLs as in-place preview buttons and opens images or GIFs in a larger modal during workouts, configuration, and history views. During an active workout, it tags exercises that were used in the most recently completed session of that same workout and provides collapsible exercise groups with right-aligned progress icons.
 
+The panel persists the expanded/collapsed state of active-workout exercise groups in browser storage, keyed by workout and muscle group, so navigating away does not reset the user's view. Exercise descriptions remain part of the exercise catalog and are editable from both configuration and the active-workout view; completed workout history stores the description snapshot used at completion.
+
 ## Related
 
 - [Project Intent](../intent/project-intent.md)

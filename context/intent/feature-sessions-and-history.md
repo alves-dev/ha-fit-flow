@@ -16,6 +16,7 @@ A routine is useful only when completed work is captured reliably. Persisted ses
 - [ ] Activities can be logged by configured identifier or display name.
 - [ ] Invalid activities and non-positive durations are rejected.
 - [ ] Data survives Home Assistant restarts and can be removed with the integration entry.
+- [ ] The active workout preserves each exercise group's expanded or collapsed state when the panel is revisited.
 
 ## Related
 
@@ -28,4 +29,3 @@ A routine is useful only when completed work is captured reliably. Persisted ses
 
 - **Created**: 2026-09-19 (Phase: Intent)
 - **Status**: Active (already implemented)
-

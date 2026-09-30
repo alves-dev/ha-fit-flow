@@ -252,6 +252,7 @@ class FitFlowCoordinator:
                     "exercise_name": x.get("name", x["id"]),
                     "muscle_group_id": x.get("muscle_group_id"),
                     "image_url": x.get("image_url"),
+                    "description": x.get("description", ""),
                 }
                 for x in exercises
             ],

@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from unittest.mock import patch
 
 from custom_components.fit_flow.coordinator import resolve_activity
 from custom_components.fit_flow.models import FitFlowData
@@ -184,27 +185,30 @@ def test_repairs_group_duplicate_exercise_names_case_insensitively():
 
 
 def test_repairs_find_duplicate_activity_records_in_recent_five_days():
-    issues = get_repair_issues(
-        FitFlowData(
-            activities=[{"id": "volleyball", "name": "Vôlei"}],
-            history=[
-                {
-                    "id": "one",
-                    "kind": "activity",
-                    "activity_id": "Vôlei",
-                    "activity_name": "Vôlei",
-                    "performed_at": "2026-09-17T18:00:00+00:00",
-                },
-                {
-                    "id": "two",
-                    "kind": "activity",
-                    "activity_id": "volleyball",
-                    "activity_name": "Vôlei",
-                    "performed_at": "2026-09-17T20:00:00+00:00",
-                },
-            ],
-        )
+    data = FitFlowData(
+        activities=[{"id": "volleyball", "name": "Vôlei"}],
+        history=[
+            {
+                "id": "one",
+                "kind": "activity",
+                "activity_id": "Vôlei",
+                "activity_name": "Vôlei",
+                "performed_at": "2026-09-17T18:00:00+00:00",
+            },
+            {
+                "id": "two",
+                "kind": "activity",
+                "activity_id": "volleyball",
+                "activity_name": "Vôlei",
+                "performed_at": "2026-09-17T20:00:00+00:00",
+            },
+        ],
     )
+    with patch(
+        "custom_components.fit_flow.repairs.dt_util.now",
+        return_value=datetime(2026, 9, 18, 12, tzinfo=UTC),
+    ):
+        issues = get_repair_issues(data)
 
     assert any(
         issue.translation_key == "duplicate_activity"
