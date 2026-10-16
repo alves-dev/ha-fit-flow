@@ -15,6 +15,7 @@ People should be able to manage and observe their routine where the rest of thei
 - [ ] Recommendation and activity state is reflected in Home Assistant sensors.
 - [ ] Users can log an activity and request a recommendation refresh through actions.
 - [ ] State changes update exposed entities.
+- [ ] On the main panel card, starting the recommended workout is the primary action, choosing an alternative is secondary, and checking the recommendation is a smaller supporting action.
 
 ## Related
 

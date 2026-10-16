@@ -211,7 +211,64 @@ def test_repairs_find_duplicate_activity_records_in_recent_five_days():
         issues = get_repair_issues(data)
 
     assert any(
-        issue.translation_key == "duplicate_activity"
+        issue.translation_key == "duplicate_record"
+        and issue.placeholders["record_type"] == "treinos e atividades"
         and issue.placeholders["count"] == "2"
         for issue in issues
     )
+
+
+def test_repairs_find_duplicate_exercise_records_in_recent_five_days():
+    data = FitFlowData(
+        exercises=[{"id": "squat", "name": "Agachamento"}],
+        history=[
+            {
+                "kind": "workout",
+                "finished_at": "2026-09-17T18:00:00+00:00",
+                "exercises": [
+                    {"exercise_id": "squat", "exercise_name": "Agachamento"}
+                ],
+            },
+            {
+                "kind": "workout",
+                "finished_at": "2026-09-17T20:00:00+00:00",
+                "exercises": [
+                    {"exercise_id": "squat", "exercise_name": "Agachamento"}
+                ],
+            },
+        ],
+    )
+    with patch(
+        "custom_components.fit_flow.repairs.dt_util.now",
+        return_value=datetime(2026, 9, 18, 12, tzinfo=UTC),
+    ):
+        issues = get_repair_issues(data)
+
+    assert any(
+        issue.translation_key == "duplicate_record"
+        and issue.placeholders["record_type"] == "treinos e atividades"
+        and issue.placeholders["count"] == "2"
+        for issue in issues
+    )
+
+
+def test_repairs_do_not_count_exercises_inside_one_workout_as_duplicates():
+    data = FitFlowData(
+        history=[
+            {
+                "kind": "workout",
+                "finished_at": "2026-09-17T18:00:00+00:00",
+                "exercises": [
+                    {"exercise_id": "squat", "exercise_name": "Agachamento"},
+                    {"exercise_id": "press", "exercise_name": "Supino"},
+                ],
+            },
+        ],
+    )
+    with patch(
+        "custom_components.fit_flow.repairs.dt_util.now",
+        return_value=datetime(2026, 9, 18, 12, tzinfo=UTC),
+    ):
+        issues = get_repair_issues(data)
+
+    assert not any(issue.translation_key == "duplicate_record" for issue in issues)

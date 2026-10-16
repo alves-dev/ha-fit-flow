@@ -2,6 +2,20 @@
 
 All user-relevant changes are documented in this file.
 
+## [2026.10.1] - 2026-10-16
+
+### Added
+
+- Added duplicate-history Repairs for multiple workout or activity records on a recent local calendar day.
+- Updated the calendar history view to show only record times and mark past empty days with a neutral symbol.
+- Added a pulsing theme-colored dot to identify the current day in the calendar.
+- Added a separate “Histórico v2” monthly calendar view while keeping the original chronological history view available.
+
+### Changed
+
+- Updated the integration version to `2026.10.1`.
+- Reordered and restyled the main recommendation card actions so starting the recommended workout is the primary action, choosing an alternative is secondary, and checking the recommendation is less prominent.
+
 ## [2026.9.5] - 2026-09-30
 
 ### Added

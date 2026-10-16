@@ -13,7 +13,7 @@ Recommendations depend on coherent catalog and history data. Early visibility in
 - [ ] Empty and unused muscle groups are identified.
 - [ ] Duplicate exercise names are identified case-insensitively.
 - [ ] Exercises without an image link are identified.
-- [ ] Duplicate recent activity records are identified.
+- [ ] Multiple recent workout or activity records on the same local calendar day are identified.
 - [ ] Repair issues are refreshed after data changes and removed when no longer applicable.
 
 ## Related
