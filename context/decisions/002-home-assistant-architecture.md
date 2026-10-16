@@ -24,6 +24,8 @@ The panel persists the expanded/collapsed state of active-workout exercise group
 
 The main recommendation card uses action hierarchy to reflect the user's likely next step: starting the recommended workout is primary, choosing an alternate workout is secondary, and manually checking for a fresh recommendation is a compact supporting action aligned to the card's lower edge.
 
+The panel keeps the original chronological history view and adds a separate calendar history view. The calendar defaults to the current month, supports previous/next month navigation, renders past empty days with a neutral symbol, marks the current day with a theme-colored pulsing dot, shows only the time for records, and places workout or activity records inside their local calendar day without introducing fixed state colors.
+
 ## Related
 
 - [Project Intent](../intent/project-intent.md)
