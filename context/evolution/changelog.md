@@ -1,10 +1,15 @@
 # Changelog
 
-## Unreleased
+## [2026.10.1] - 2026-10-16
+
+### Added
+
+- Added duplicate-history Repairs for multiple workout or activity records on a recent local calendar day.
 
 ### Changed
 
 - Reordered and restyled the main recommendation card actions so starting the recommended workout is the primary action, choosing an alternative is secondary, and checking the recommendation is less prominent.
+- Updated the integration version to `2026.10.1`.
 
 ## [2026.9.5] - 2026-09-30
 
