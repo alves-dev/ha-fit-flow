@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Reordered and restyled the main recommendation card actions so starting the recommended workout is the primary action, choosing an alternative is secondary, and checking the recommendation is less prominent.
+
 ## [2026.9.5] - 2026-09-30
 
 ### Added

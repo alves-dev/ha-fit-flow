@@ -22,6 +22,8 @@ The current implementation supports the panel, five sensor categories (next, alt
 
 The panel persists the expanded/collapsed state of active-workout exercise groups in browser storage, keyed by workout and muscle group, so navigating away does not reset the user's view. Exercise descriptions remain part of the exercise catalog and are editable from both configuration and the active-workout view; completed workout history stores the description snapshot used at completion.
 
+The main recommendation card uses action hierarchy to reflect the user's likely next step: starting the recommended workout is primary, choosing an alternate workout is secondary, and manually checking for a fresh recommendation is a compact supporting action aligned to the card's lower edge.
+
 ## Related
 
 - [Project Intent](../intent/project-intent.md)
