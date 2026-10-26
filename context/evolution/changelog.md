@@ -13,6 +13,7 @@
 
 - Reordered and restyled the main recommendation card actions so starting the recommended workout is the primary action, choosing an alternative is secondary, and checking the recommendation is less prominent.
 - Updated the integration version to `2026.10.1`.
+- Aligned the development-release cleanup workflow with the shared GitHub Actions baseline: daily scheduling, retention of the newest five prereleases, and explicit repository scoping for GitHub CLI operations.
 
 ## [2026.9.5] - 2026-09-30
 
