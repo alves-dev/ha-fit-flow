@@ -26,7 +26,7 @@ The main recommendation card uses action hierarchy to reflect the user's likely 
 
 The panel keeps the original chronological history view and adds a separate calendar history view. The calendar defaults to the current month, supports previous/next month navigation, renders past empty days with a neutral symbol, marks the current day with a theme-colored pulsing dot, shows only the time for records, and places workout or activity records inside their local calendar day without introducing fixed state colors.
 
-Workout requirements may optionally carry a unique sequential order. The coordinator validates that order when supplied, while the configuration summary and active-workout panel use it to present muscle groups consistently.
+Workout requirements may optionally carry a unique sequential order. The coordinator validates that order when supplied, while the configuration summary and active-workout panel use it to present muscle groups consistently. The configuration editor labels group, exercise quantity, and order fields, explains the all-or-none order rule, and renders mutation errors inline.
 
 ## Related
 

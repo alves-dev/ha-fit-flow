@@ -5,6 +5,7 @@
 ### Added
 
 - Added optional sequential ordering for workout muscle groups, validated by the coordinator and applied in configuration and active-workout views.
+- Added explicit labels and inline validation feedback to the workout requirement editor.
 
 ## [2026.10.1] - 2026-10-16
 
