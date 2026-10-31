@@ -72,7 +72,7 @@ def coordinator_with_data():
             {
                 "id": "upper",
                 "name": "Superior",
-                "requirements": [{"muscle_group_id": "chest", "exercise_count": 1}],
+                "requirements": [{"muscle_group_id": "chest", "exercise_count": 1, "order": 1}],
             },
             {"id": "lower", "name": "Inferior", "requirements": []},
         ],
@@ -187,8 +187,18 @@ async def test_coordinator_mutations_and_validation():
             {
                 "name": "X",
                 "requirements": [
-                    {"muscle_group_id": "chest", "exercise_count": 1},
-                    {"muscle_group_id": "chest", "exercise_count": 1},
+                    {"muscle_group_id": "chest", "exercise_count": 1, "order": 2},
+                ],
+            },
+            "sequential",
+        ),
+        (
+            "workouts",
+            {
+                "name": "X",
+                "requirements": [
+                    {"muscle_group_id": "chest", "exercise_count": 1, "order": 1},
+                    {"muscle_group_id": "chest", "exercise_count": 1, "order": 2},
                 ],
             },
             "only appear once",
@@ -197,7 +207,7 @@ async def test_coordinator_mutations_and_validation():
             "workouts",
             {
                 "name": "X",
-                "requirements": [{"muscle_group_id": "chest", "exercise_count": 0}],
+                "requirements": [{"muscle_group_id": "chest", "exercise_count": 0, "order": 1}],
             },
             "Exercise quantity",
         ),

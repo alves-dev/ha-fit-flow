@@ -148,6 +148,14 @@ class FitFlowCoordinator:
             raise ValueError("Unknown muscle group in workout")
         if any(int(item.get("exercise_count") or 0) < 1 for item in requirements):
             raise ValueError("Exercise quantity must be at least one")
+        orders = [item.get("order") for item in requirements]
+        has_orders = any(order is not None for order in orders)
+        if has_orders and (
+            any(order is None for order in orders)
+            or len(set(orders)) != len(orders)
+            or sorted(int(order) for order in orders) != list(range(1, len(requirements) + 1))
+        ):
+            raise ValueError("Group order must be unique and sequential when provided")
 
     def _validate_conflict_rule(
         self, value: dict[str, Any], item_id: str | None

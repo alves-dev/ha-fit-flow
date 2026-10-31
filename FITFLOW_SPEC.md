@@ -136,6 +136,11 @@ This is intentionally simple. Secondary muscle groups can be introduced later wi
 
 A workout describes how many exercises must be selected from each muscle group.
 
+Each requirement may optionally define an `order` value. When present, it is a
+1-based sequential position used by the configuration and active-workout UIs
+to render groups in the user's preferred order. Existing data without `order`
+remains valid and is displayed in its stored order.
+
 Example:
 
 ```yaml
@@ -162,6 +167,7 @@ The available exercises are resolved dynamically from exercises associated with 
 - At least one requirement is required.
 - Each requirement must reference an existing muscle group.
 - `exercise_count >= 1`.
+- `order`, when supplied, must be unique, start at 1, and be sequential.
 - The same muscle group should appear only once per workout.
 - The UI should warn when fewer exercises exist for a muscle group than the workout requests, but configuration does not necessarily need to be permanently blocked if the user is still building the catalog.
 
