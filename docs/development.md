@@ -11,4 +11,4 @@ Validate the integration structure with:
 python3 /home/alves-dev/.codex/skills/home-assistant-integration-standards/scripts/validate_integration_structure.py .
 ```
 
-For an end-to-end check, deploy with `sh dev/copy-to-core.sh` and use the local Home Assistant instance.
+For an end-to-end check, read [the shared local Home Assistant reference](local-home-assistant.md), then deploy with `sh dev/deploy-to-ha.sh` and use the shared Docker instance.

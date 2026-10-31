@@ -26,4 +26,4 @@ Install through HACS or copy `custom_components/fit_flow` into your Home Assista
 - Monitor the last activity, next workout, alternate workout, and lifetime counters with sensors.
 - Use `fit_flow.check_next_workout` to refresh the current recommendation.
 
-Technical details and contributor checks are in [development documentation](docs/development.md) and [compatibility](docs/compatibility.md).
+Technical details, contributor checks, and local Home Assistant testing are in [development documentation](docs/development.md), [local Home Assistant documentation](docs/local-home-assistant.md), and [compatibility](docs/compatibility.md).

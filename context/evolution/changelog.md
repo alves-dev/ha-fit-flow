@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-31 — Integration standards audit
+
+- Migrated local Home Assistant helpers to the shared Docker container workflow.
+- Added the shared local Home Assistant environment reference and synchronized agent/development guidance.
+
 ## [2026.10.2] - 2026-10-31
 
 ### Added
