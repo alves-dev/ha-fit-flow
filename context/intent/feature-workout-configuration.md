@@ -12,6 +12,7 @@ Flexible routines need to reflect a person’s available exercises, preferred wo
 
 - [ ] An administrator can create, update, and delete supported catalog items.
 - [ ] Workouts can require muscle groups and exercise quantities.
+- [ ] Administrators can optionally define a sequential order for workout muscle groups, and the active workout follows that order.
 - [ ] Recovery conflict rules can relate an activity or workout to a target workout.
 - [ ] Invalid names, references, quantities, URLs, and duplicate rules are rejected.
 - [ ] Referenced muscle groups and active workouts cannot be removed in ways that would break existing data.

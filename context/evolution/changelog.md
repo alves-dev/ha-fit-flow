@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-31 — Integration standards audit
+
+- Migrated local Home Assistant helpers to the shared Docker container workflow.
+- Added the shared local Home Assistant environment reference and synchronized agent/development guidance.
+
+## [2026.10.2] - 2026-10-31
+
+### Added
+
+- Added optional sequential ordering for workout muscle groups and clarified the requirement editor with labels and inline validation feedback.
+
+### Fixed
+
+- Preserved the stored order for legacy workouts without explicit group ordering.
+
 ## [2026.10.1] - 2026-10-16
 
 ### Added
@@ -13,6 +28,7 @@
 
 - Reordered and restyled the main recommendation card actions so starting the recommended workout is the primary action, choosing an alternative is secondary, and checking the recommendation is less prominent.
 - Updated the integration version to `2026.10.1`.
+- Aligned the development-release cleanup workflow with the shared GitHub Actions baseline: daily scheduling, retention of the newest five prereleases, and explicit repository scoping for GitHub CLI operations.
 
 ## [2026.9.5] - 2026-09-30
 

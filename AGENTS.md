@@ -3,12 +3,12 @@
 ## Setup Commands
 
 - Install: `uv sync`
-- Dev/runtime validation: `sh dev/copy-to-core.sh` (deploys to the shared Home Assistant instance)
+- Dev/runtime validation: `sh dev/deploy-to-ha.sh` (deploys to the shared Docker Home Assistant instance)
 - Test: `uv run pytest`
 - Lint: `uv run ruff check .`
 - Integration structure validation: `python3 /home/alves-dev/.codex/skills/home-assistant-integration-standards/scripts/validate_integration_structure.py .`
 
-Use `sh dev/start-ha.sh` and `sh dev/stop-ha.sh` to manage the shared local Home Assistant instance.
+Use `sh dev/start-ha.sh` and `sh dev/stop-ha.sh` to manage the shared Docker Home Assistant instance. The shared environment reference is [docs/local-home-assistant.md](docs/local-home-assistant.md).
 
 ## Code Style
 

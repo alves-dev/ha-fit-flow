@@ -1,6 +1,6 @@
 # FitFlow
 
-![Version](https://img.shields.io/badge/Version-2026.10.1-41BDF5?style=flat-square)
+![Version](https://img.shields.io/badge/Version-2026.10.2-41BDF5?style=flat-square)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.8%2B-41BDF5?logo=homeassistant)
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=alves-dev&repository=ha-fit-flow&category=integration)
@@ -26,4 +26,4 @@ Install through HACS or copy `custom_components/fit_flow` into your Home Assista
 - Monitor the last activity, next workout, alternate workout, and lifetime counters with sensors.
 - Use `fit_flow.check_next_workout` to refresh the current recommendation.
 
-Technical details and contributor checks are in [development documentation](docs/development.md) and [compatibility](docs/compatibility.md).
+Technical details, contributor checks, and local Home Assistant testing are in [development documentation](docs/development.md), [local Home Assistant documentation](docs/local-home-assistant.md), and [compatibility](docs/compatibility.md).
