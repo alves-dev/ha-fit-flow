@@ -1,11 +1,14 @@
 # Changelog
 
-## [Unreleased]
+## [2026.10.2] - 2026-10-31
 
 ### Added
 
-- Added optional sequential ordering for workout muscle groups, validated by the coordinator and applied in configuration and active-workout views.
-- Added explicit labels and inline validation feedback to the workout requirement editor.
+- Added optional sequential ordering for workout muscle groups and clarified the requirement editor with labels and inline validation feedback.
+
+### Fixed
+
+- Preserved the stored order for legacy workouts without explicit group ordering.
 
 ## [2026.10.1] - 2026-10-16
 
