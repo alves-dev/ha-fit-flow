@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added optional sequential ordering for workout muscle groups, validated by the coordinator and applied in configuration and active-workout views.
+
 ## [2026.10.1] - 2026-10-16
 
 ### Added

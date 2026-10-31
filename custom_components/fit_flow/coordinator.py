@@ -153,7 +153,8 @@ class FitFlowCoordinator:
         if has_orders and (
             any(order is None for order in orders)
             or len(set(orders)) != len(orders)
-            or sorted(int(order) for order in orders) != list(range(1, len(requirements) + 1))
+            or sorted(int(order) for order in orders)
+            != list(range(1, len(requirements) + 1))
         ):
             raise ValueError("Group order must be unique and sequential when provided")
 
